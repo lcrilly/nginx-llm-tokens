@@ -1,0 +1,11 @@
+services:
+  nginx_tokens:
+    ports:
+      - 9001:80
+    image: nginx:njs # swap back for nginx:latest when njs-0.9.6 is included
+    context: .
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+      - ./state:/etc/nginx/state
+      #- ./docker-entrypoint.d:/docker-entrypoint.d
+      
