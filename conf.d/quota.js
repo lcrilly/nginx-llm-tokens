@@ -4,7 +4,7 @@ var resetMillisecs = undefined;
 
 function check(r) {
 	if (r.variables.token_quota_key == '') {
-		ngx.log(ngx.WARN, 'QUOTA KEY IS EMPTY');
+		ngx.log(ngx.ERR, 'QUOTA KEY IS EMPTY');
 		r.status = 401;
 	} else {
     resetMillisecs = untilNext(r.variables.token_quota_period);
@@ -15,11 +15,8 @@ function check(r) {
 		} else if (ngx.shared.token_quotas.get(r.variables.token_quota_key) < 1) {
 			ngx.log(ngx.WARN, 'QUOTA EXHAUSTED FOR ' + r.variables.token_quota_key);
 			r.status = 403;
-//    } else if (ngx.shared.token_quotas.get(r.variables.token_quota_key) < count.getRequestTokens()) {
-//			ngx.log(ngx.WARN, 'INSUFFICIENT QUOTA FOR REQUEST ' + r.variables.token_quota_key);
-//      r.status = 421;
 		} else {
-      ngx.log(ngx.WARN, 'HAS QUOTA FOR ' + r.variables.token_quota_key);
+      ngx.log(ngx.INFO, 'HAS QUOTA FOR ' + r.variables.token_quota_key);
 			r.status = 204;
 		}
 	}
@@ -27,18 +24,14 @@ function check(r) {
 }
 
 function decrement(r) {
-  // might need to check for undefined;
-  if (resetMillisecs === undefined) {
-    resetMillisecs = untilNext(r.variables.token_quota_period);
-  }
-
   var incr = 0;
   incr -= count.getRequestTokens();
   incr -= count.getResponseTokens();
-  ngx.log(ngx.WARN, 'DECREMENTING QUOTA (' + incr + ') FOR ' + r.variables.token_quota_key);
-  ngx.shared.token_quotas.incr(r.variables.token_quota_key, incr, resetMillisecs);
+  ngx.log(ngx.INFO, 'DECREMENTING QUOTA (' + incr + ') FOR ' + r.variables.token_quota_key);
+  ngx.shared.token_quotas.incr(r.variables.token_quota_key, incr);
 
-  return 'r=' + ngx.shared.token_quotas.get(r.variables.token_quota_key) + ';t=' + Math.round(resetMillisecs / 1000);
+  const t = Math.round(ngx.shared.token_quotas.ttl(r.variables.token_quota_key) / 1000);
+  return 'r=' + ngx.shared.token_quotas.get(r.variables.token_quota_key) + ';t=' + t;
 }
 
 function resetSecs(r) {
