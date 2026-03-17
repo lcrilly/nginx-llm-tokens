@@ -10,7 +10,7 @@ LLM tokens are counted separately in the request and the response. The metrics a
 
 A simple JavaScript function uses regular expressions and heuristics to estimate the number of tokens. More precise (per-model-accurate) counting can be performed by replacing the `estimateTokenCount()` function in [tokenx.js](conf.d/tokenx.js).
 
-The number of tokens in the request is returned as a repsonse header, `request-tokens`. The number of tokens in the response is returned as a response _trailer_, `response-tokens` (as the count is not known until the last byte has been read and we don't want to delay sending the response to the client).
+The number of tokens in the request is returned as a repsonse header, `Request-Tokens`. The number of tokens in the response is returned as a response _trailer_, `Response-Tokens` (as the count is not known until the last byte has been read and we don't want to delay sending the response to the client).
 
 
 ## Token Quotas
@@ -39,7 +39,7 @@ docker-compose up
 ```
 curl -id "is this thing working?" http://localhost:9001/echo
 ```
-> Note the `request-tokens` header, `response-tokens` trailer, and `RateLimit` trailer.
+> Note the `Request-Tokens` header, `Response-Tokens` trailer, and `RateLimit` trailer.
 
 3. Retrieve a large resource from the **books** endpoint.
 ```
